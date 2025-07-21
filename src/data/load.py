@@ -1,67 +1,57 @@
 """
-Helpers for loading data about G10 countries.
+Helper for preprocessing and loading U.S. macroeconomic data from FRED.
 """
 
 import pandas as pd
-from constants.g10_countries import CODE_TO_COUNTRY
-from .config import DATA_CONFIG
-import requests
-from io import StringIO
+from data.config import FRED_DATA_SERIES
+import fredapi
+import dotenv
+import os
 
 def load_data() -> pd.DataFrame:
-    default_config = DATA_CONFIG["DEFAULT"]
+    dotenv.load_dotenv()
+    FRED_API_KEY = os.getenv("FRED_API_KEY")
+    fred = fredapi.Fred(api_key=FRED_API_KEY)
 
-    df = pd.DataFrame(columns=["date", "country", "feature", "value"])
+    data = pd.DataFrame({
+        name: fred.get_series(
+            series_id=code
+        ).resample("MS").mean().interpolate(
+            limit_area="inside", 
+            limit_direction="forward"
+        ).ffill()
+        for name, code in FRED_DATA_SERIES.items()
+    }).dropna()
 
-    for feature, feature_config in DATA_CONFIG.items():
-        if feature == "DEFAULT":
-            continue
+    # Endogenous variable
+    data["cs_home_price_growth"] = data["cs_home_price_index"].pct_change(periods=12) * 100
 
-        url = feature_config["url"]
-        date_col = feature_config.get("date_col", default_config["date_col"])
-        country_col = feature_config.get("country_col", default_config["country_col"])
-        value_col = feature_config.get("value_col", default_config["value_col"])
+    # Exogeneous variables: general macroeconomic conditions
+    data["real_gdp_growth"] = data["real_gdp"].pct_change(periods=12) * 100
+    # data["inflation_rate"]
+    # data["federal_funds_rate"]
 
-        if url.startswith("https://sdmx.oecd.org"):
-            feature_df = pd.read_csv(
-                StringIO(requests.get(url).text)
-            )
-            country_values = feature_df[country_col]
-        else:
-            feature_df = pd.read_csv(url)
-            country_values = feature_df[country_col].map(CODE_TO_COUNTRY)
+    # # Exogeneous variables: housing market conditions
+    data["real_disposable_income_growth"] = data["real_disposable_income"].pct_change(periods=12) * 100
+    data["housing_starts_growth"] = data["housing_starts"].pct_change(periods=12) * 100
+    data["population_growth"] = data["population"].pct_change(periods=12) * 100
 
-        new_rows = pd.DataFrame({
-            "date": feature_df[date_col],
-            "country": country_values,
-            "feature": feature,
-            "value": feature_df[value_col]
-        })
+    # Exogeneous variables: credit-exuberance
+    data["household_debt_growth"] = data["household_debt"].pct_change(periods=12) * 100
+    data["real_estate_loans_growth"] = data["real_estate_loans"].pct_change(periods=12) * 100
+    data["real_m2_growth"] = data["real_m2"].pct_change(periods=12) * 100
 
-        df = pd.concat([df, new_rows], ignore_index=True)
+    data = data.drop(
+        columns=[
+            "cs_home_price_index",
+            "real_gdp",
+            "real_disposable_income",
+            "housing_starts",
+            "population",
+            "household_debt",
+            "real_estate_loans",
+            "real_m2"
+        ]
+    ).dropna()
 
-    df["date"] = pd.to_datetime(df["date"].apply(_format_date), errors="coerce")
-
-    df = df.pivot_table(
-        index="date",
-        columns=["country", "feature"],
-        values="value"
-    )
-
-    return df.resample("QS") \
-            .mean() \
-            .interpolate(
-                method="linear", 
-                limit_area="inside", 
-                limit_direction="both"
-            ).ffill()
-
-def _format_date(date_str):
-    date_str = str(date_str).strip()
-
-    if len(date_str) == 4:
-        return pd.to_datetime(date_str + '-01-01').strftime('%Y-%m-01')
-    elif 'Q' in date_str:
-        return pd.Period(date_str, freq='Q').start_time.strftime('%Y-%m-01')
-    else:
-        return pd.to_datetime(date_str).strftime('%Y-%m-01')
+    return data

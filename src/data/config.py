@@ -1,40 +1,53 @@
 """
-Configurations for data sources.
+Configurations for selected FRED data series.
 """
 
-DATA_CONFIG = {
-    "DEFAULT": {
-        "date_col": "TIME_PERIOD",
-        "country_col": "REF_AREA",
-        "value_col": "OBS_VALUE"
-    },
-    "rpp_growth": {
-        "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_SPP/1.0/Q.BE+CA+CH+DE+FR+GB+IT+JP+NL+SE+US.R.771?format=csv"
-    },
-    "credit_to_gdp_gap": {
-        "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CREDIT_GAP/1.0/Q.BE+CA+CH+DE+FR+GB+IT+JP+NL+SE+US.P..C?format=csv",
-        "country_col": "BORROWERS_CTY"
-    },
-    "credit_to_gdp_ratio": {
-        "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CREDIT_GAP/1.0/Q.BE+CA+CH+DE+FR+GB+IT+JP+NL+SE+US.P.A.C?format=csv",
-        "country_col": "BORROWERS_CTY"
-    },
-    "gdp_growth": {
-        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.NAD,DSD_NAMAIN1@DF_QNA_EXPENDITURE_GROWTH_OECD,/Q..NLD+JPN+ITA+GBR+USA+FRA+SWE+DNK+CHE+CAN+BEL.S1..B1GQ......GY.?format=csvfilewithlabels",
-        "country_col": "Reference area"
-    },
-    "central_bank_policy_rate": {
-        "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/1.0/M.BE+CA+CH+DE+FR+GB+IT+JP+NL+SE+US?format=csv"
-    },
-    "inflation": {
-        "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_LONG_CPI/1.0/M.BE+CA+CH+DE+FR+GB+IT+JP+NL+SE+US.771?format=csv"
-    },
-    "household_dti": {
-        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.NAD,DSD_NAAG@DF_NAAG,/A.DNK+NLD+JPN+FRA+BEL+CAN+ITA+SWE+CHE+GBR+USA.LES1M_FD4..?dimensionAtObservation=AllDimensions&format=csvfilewithlabels",
-        "country_col": "Reference area"
-    },
-    "household_credit_to_GDP_ratio": {
-        "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_TC/2.0/Q.BE+CA+CH+DE+FR+GB+IT+JP+NL+SE+US.H.A.M.770?format=csv",
-        "country_col": "BORROWERS_CTY"
-    }
+FRED_DATA_SERIES = {
+    # S&P Dow Jones Indices LLC, S&P CoreLogic Case-Shiller U.S. National Home Price Index
+    # [CSUSHPINSA], retrieved from FRED, Federal Reserve Bank of St. Louis; 
+    # https://fred.stlouisfed.org/series/CSUSHPINSA, July 20, 2025.
+    "cs_home_price_index": "CSUSHPINSA",
+
+    # U.S. Bureau of Economic Analysis, Real Gross Domestic Product [GDPC1], retrieved from FRED,
+    # Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/GDPC1, July 20, 2025.
+    "real_gdp": "GDPC1",
+
+    # Federal Reserve Bank of Atlanta, Sticky Price Consumer Price Index less Food and Energy
+    # [CORESTICKM159SFRBATL], retrieved from FRED, Federal Reserve Bank of St. Louis; 
+    # https://fred.stlouisfed.org/series/CORESTICKM159SFRBATL, July 20, 2025.
+    "inflation_rate": "CORESTICKM159SFRBATL",
+
+    # Board of Governors of the Federal Reserve System (US), Households and Nonprofit
+    # Organizations; Debt Securities and Loans; Liability, Level [CMDEBT], retrieved from FRED,
+    # Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/CMDEBT, July 20, 2025.
+    "household_debt": "CMDEBT",
+
+    # Board of Governors of the Federal Reserve System (US), Federal Funds Effective Rate
+    # [RIFSPFFNB], retrieved from FRED, Federal Reserve Bank of St. Louis; 
+    # https://fred.stlouisfed.org/series/RIFSPFFNB, July 20, 2025.
+    "federal_funds_rate": "RIFSPFFNB",
+    
+    # Board of Governors of the Federal Reserve System (US), Real Estate Loans, All Commercial
+    # Banks [RELACBW027SBOG], retrieved from FRED, Federal Reserve Bank of St. Louis; 
+    # https://fred.stlouisfed.org/series/RELACBW027SBOG, July 20, 2025.
+    "real_estate_loans": "RELACBW027SBOG",
+
+    # Federal Reserve Bank of St. Louis, Real M2 Money Stock [M2REAL], retrieved from FRED, Federal
+    # Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/M2REAL, July 20, 2025.
+    "real_m2": "M2REAL",
+
+    # U.S. Bureau of Economic Analysis, Real Disposable Personal Income [DSPIC96], retrieved from
+    # FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DSPIC96,
+    # July 20, 2025.
+    "real_disposable_income": "DSPIC96",
+
+    # U.S. Bureau of Labor Statistics, Population Level [CNP16OV], retrieved from FRED, Federal
+    # Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/CNP16OV, July 20, 2025.
+    "population": "CNP16OV",
+
+    # U.S. Census Bureau and U.S. Department of Housing and Urban Development,
+    # New Privately-Owned Housing Units Started: Total Units [HOUST], retrieved from FRED,
+    # Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/HOUST,
+    # July 20, 2025.
+    "housing_starts": "HOUST"
 }
